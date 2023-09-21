@@ -96,7 +96,7 @@ def out_and_in(train: pd.DataFrame,
 
     base_in_performance, one_in_feature_performance = one_in(train_droped, target, out_columns, model_train)
     in_features = feature_filter(base_in_performance, one_in_feature_performance)
-    removed_features = [feature for feature in in_features if feature in out_features]
+    removed_features = [feature for feature in out_features if feature not in in_features]
 
     return removed_features
 
