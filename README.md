@@ -32,6 +32,10 @@ auto_mpg = fetch_openml(data_id=42165)
 X = auto_mpg.data
 y = auto_mpg.target
 print(f"the shape of X: {X.shape()}")
+# encoded X
+X_encoded = pd.get_dummies(X, drop_first=True)
+# fill NA with mean
+X_encoded = X_encoded.fillna(X_encoded.mean())
 
 
 def model_train(X: pd.DataFrame,
