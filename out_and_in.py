@@ -4,7 +4,7 @@ This is the main function
 
 import pandas as pd
 from typing import Callable
-
+from tqdm import tqdm
 
 def one_out(train: pd.DataFrame,
             target: pd.DataFrame,
@@ -22,8 +22,7 @@ def one_out(train: pd.DataFrame,
 
     one_out_feature_performance = {}
     base_performance = model_train(x_train, target)
-
-    for feature in x_train.columns:
+    for feature in tqdm(x_train.columns, desc="Picking one out"):
         temp_train = x_train.drop(columns=feature)
         result = model_train(temp_train, target)
 
@@ -50,7 +49,7 @@ def one_in( train: pd.DataFrame,
     one_in_feature_performance = {}
     base_performance = model_train(x_train, target)
 
-    for feature in dropped_features.columns:
+    for feature in tqdm(dropped_features.columns, desc="Putting one back"):
         temp_train = x_train.copy()
         temp_train[feature] = dropped_features[feature]
         result = model_train(temp_train, target)
@@ -90,12 +89,15 @@ def out_and_in(train: pd.DataFrame,
     :return: list,
     """
 
-    base_out_performance, one_out_feature_performance = one_out(train, "content")
+    base_out_performance, one_out_feature_performance = one_out(train, target, model_train)
     out_features = feature_filter(base_out_performance, one_out_feature_performance)
     train_droped = train.drop(columns=out_features)
     out_columns = train[out_features]
 
-    base_in_performance, one_in_feature_performance = one_in(train_droped, "content", out_columns)
+    base_in_performance, one_in_feature_performance = one_in(train_droped, target, out_columns, model_train)
     in_features = feature_filter(base_in_performance, one_in_feature_performance)
+    removed_features = [feature for feature in in_features if feature in out_features]
+
+    return removed_features
 
     
